@@ -1,6 +1,7 @@
 package tt.yy.zzz.com.myapplication;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -56,17 +57,17 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e("ricardo", Utils.isSystemApp(this) + "-----");
+        Log.e("ricardo", Utils.isSystemApp(this) + "-----" + Build.VERSION.SDK_INT);
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View view1 = LayoutInflater.from(MainActivity.this).inflate(R.layout.ad, null);
-                AdbugView.init(MainActivity.this).show(view1);
-                Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
-                startActivity(intent);
+               /* View view1 = LayoutInflater.from(MainActivity.this).inflate(R.layout.ad, null);
+                AdbugView.init(MainActivity.this).show(view1);*/
                 /*Intent intent1 = new Intent();
                 intent1.setClass(MainActivity.this, AdActivity.class);
                 startActivity(intent1);*/
+                //handler.sendEmptyMessageDelayed(0, 500);
+                startService(new Intent(MainActivity.this, AdService.class));
                 handler.sendEmptyMessage(0);
             }
         });
@@ -81,15 +82,24 @@ public class MainActivity extends Activity {
             super.handleMessage(msg);
             Log.e("ricardo", "-------------------" + Utils.isRoot());
             if (msg.what == 0) {
-                closePackage("com.ss.android.article.news");
+                Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
+                startActivity(intent);
+                // closePackage("com.ss.android.article.news");
+                ActivityManager activityMgr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                try {
+                    activityMgr.killBackgroundProcesses("com.ss.android.article.news");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 if (Utils.isRoot()) {
                     statrtActivity("com.ss.android.article.news/.activity.MainActivity");
                 } else {
                     startActivity("com.ss.android.article.news", "com.ss.android.article.news.activity.MainActivity");
                 }
-                handler.sendEmptyMessageDelayed(1,6000);
+               // handler.sendEmptyMessageDelayed(1, 6000);
+                finish();
             } else
-         /*   Intent intent = new Intent();
+         /* Intent intent = new Intent();
             intent.setClass(MainActivity.this, AdActivity.class);
             startActivity(intent);*/
                 finish();
@@ -110,7 +120,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestAlertWindowPermission();
+        }
         Monitor.init(this);
     }
 
@@ -148,7 +160,7 @@ public class MainActivity extends Activity {
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
             Class<?> clazz = mPluginContext.getClassLoader().loadClass(
                     activityName);
-            Intent intent=new Intent(mPluginContext, clazz);
+            Intent intent = new Intent(mPluginContext, clazz);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (PackageManager.NameNotFoundException e) {
