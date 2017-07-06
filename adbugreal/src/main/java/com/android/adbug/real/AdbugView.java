@@ -74,7 +74,7 @@ public class AdbugView {
     }
 
     public void show() {
-        btn_floatView = new Button(context.getApplicationContext());
+        btn_floatView = new Button(context);
         ((Button) btn_floatView).setText("悬浮窗");
         btn_floatView.setBackgroundColor(Color.argb(0xff, 0xff, 0, 0));
 
@@ -83,12 +83,11 @@ public class AdbugView {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
 
         // 设置window type
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            params.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
-        } else {
-            params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-        }
-
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            params.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+        } else {*/
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+        //}
         params.format = PixelFormat.RGBA_8888;
 
         // 设置Window flag
@@ -104,6 +103,12 @@ public class AdbugView {
         params.width = 100;
         params.height = 100;
         wm.addView(btn_floatView, params);
-        new Timer().schedule(timerTask, 15000);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Monitor.getMonitor().remove();
+
+            }
+        }, 15000);
     }
 }
