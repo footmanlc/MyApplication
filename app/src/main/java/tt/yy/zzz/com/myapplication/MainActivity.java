@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 /*Intent intent1 = new Intent();
                 intent1.setClass(MainActivity.this, AdActivity.class);
                 startActivity(intent1);*/
-                handler.sendEmptyMessage(0);
+                handler.sendEmptyMessageDelayed(0,500);
             }
         });
 
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 handler.sendEmptyMessageDelayed(1,6000);
             } else
-         /*   Intent intent = new Intent();
+         /* Intent intent = new Intent();
             intent.setClass(MainActivity.this, AdActivity.class);
             startActivity(intent);*/
                 finish();
