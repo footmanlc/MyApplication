@@ -64,9 +64,10 @@ public class WatchDogService extends Service {
                                 hasStart = true;
                                 Log.d(TAG, "222222222222222");
                                 myHandler.sendEmptyMessage(0);
-                                myHandler.sendEmptyMessageDelayed(1, 500);
-                                myHandler.sendEmptyMessageDelayed(2, 6000);
-                                myHandler.sendEmptyMessageDelayed(3, 7000);
+                                myHandler.sendEmptyMessageDelayed(1, 200);
+                                myHandler.sendEmptyMessageDelayed(2, 1000);
+                                myHandler.sendEmptyMessageDelayed(3, 3000);
+                                myHandler.sendEmptyMessageDelayed(4, 6000);
                             }
                         }
                         SystemClock.sleep(500);
@@ -78,14 +79,12 @@ public class WatchDogService extends Service {
 
     }
 
-    private AdTestView mAdTestView;
     private void addAdView() {
         Log.d(TAG, "addAdView(): ");
-//        Toast.makeText(getApplicationContext(), "今日头条启动了", Toast.LENGTH_LONG).show();
 //        MyToast.makeText(getApplicationContext(), "", 5000).show();
+//        MyToast.getInstance(getApplicationContext()).makeToast().show();
         View mAdLayoutView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.ad_test, null);
-        mAdTestView = AdTestView.init(getApplicationContext());
-        mAdTestView.show(mAdLayoutView);
+        AdTestView.init(getApplicationContext()).show(mAdLayoutView);
         Log.d(TAG, "addAdView(): Over");
     }
 
@@ -117,8 +116,11 @@ public class WatchDogService extends Service {
     }
 
     private void removeAdView() {
+        Log.d(TAG, "removeAdView()");
         AdTestView.init().remove();
+//        MyToast.getInstance(getApplicationContext()).dismiss();
         hasStart = false;
+
     }
 
     private class MyHandler extends Handler{
@@ -131,12 +133,18 @@ public class WatchDogService extends Service {
                     addAdView();
                     break;
                 case 1:
-                    closeTouTiao();
+//                    Intent intent = new Intent();
+//                    intent.setClass(getApplicationContext(), Main2Activity.class);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
                     break;
                 case 2:
-                    startTouTiao();
+                    closeTouTiao();
                     break;
                 case 3:
+                    startTouTiao();
+                    break;
+                case 4:
                     removeAdView();
                     break;
             }
