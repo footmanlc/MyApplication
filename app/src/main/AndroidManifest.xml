@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <!-- <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />-->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
     <uses-permission android:name="android.permission.START_ANY_ACTIVITY" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -30,6 +31,7 @@
         </activity>
         <service android:name=".WatchDogService" />
         <activity android:name=".AdActivity"/>
+        <service android:name=".AdService"/>
     </application>
 
 </manifest>
