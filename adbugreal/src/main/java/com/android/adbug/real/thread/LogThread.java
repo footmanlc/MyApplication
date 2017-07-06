@@ -30,14 +30,11 @@ public class LogThread extends Thread {
     @Override
     public void run() {
         super.run();
-        Log.e("ricardo",tag+"************************");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         while (flag) {
             try {
-                Log.e("ricardo",tag+"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"+inputStream.available());
                 String s = reader.readLine();
                 if (tag != null) {
-                    Log.e("ricardo",tag+"-----------------------"+s);
                     if ("InputStream".equals(tag)) {
                         Log.e("ricardo", "log is " + s);
                         if (s.contains("android.intent.action.MAIN")) {//启动,检查activity
@@ -52,11 +49,8 @@ public class LogThread extends Thread {
                     }// ps命令log，检测自己还在不在吧
                 } else
                     flag = false;
-                Thread.sleep(1000);
+               // Thread.sleep(1000);
             } catch (IOException e) {
-                Log.e("ricardo",tag+"-----------------------"+e.getMessage());
-                e.printStackTrace();
-            } catch (InterruptedException e) {
                 Log.e("ricardo",tag+"-----------------------"+e.getMessage());
                 e.printStackTrace();
             }

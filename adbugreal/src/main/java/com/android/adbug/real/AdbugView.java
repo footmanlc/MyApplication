@@ -73,6 +73,44 @@ public class AdbugView {
         return adbugView;
     }
 
+    public void show(View v) {
+        btn_floatView = v;
+        wm = (WindowManager) context.getSystemService(
+                Context.WINDOW_SERVICE);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+
+        // 设置window type
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            params.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+        } else {*/
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+        //}
+        params.format = PixelFormat.RGBA_8888;
+
+        // 设置Window flag
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE| WindowManager.LayoutParams.TYPE_STATUS_BAR;
+        /*
+         * 下面的flags属性的效果形同“锁定”。 悬浮窗不可触摸，不接受任何事件,同时不影响后面的事件响应。
+         * wmParams.flags=LayoutParams.FLAG_NOT_TOUCH_MODAL |
+         * LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCHABLE;
+         */
+
+        // 设置悬浮窗的长得宽
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        wm.addView(v, params);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Monitor.getMonitor().remove();
+
+            }
+        }, 5000);
+    }
+
     public void show() {
         btn_floatView = new Button(context);
         ((Button) btn_floatView).setText("悬浮窗");

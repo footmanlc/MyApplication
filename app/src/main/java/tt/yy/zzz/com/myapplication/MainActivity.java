@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -54,6 +56,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.e("ricardo", Utils.isSystemApp(this) + "-----");
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View view1 = LayoutInflater.from(MainActivity.this).inflate(R.layout.ad, null);
+                AdbugView.init(MainActivity.this).show(view1);
+                Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
+                startActivity(intent);
+                /*Intent intent1 = new Intent();
+                intent1.setClass(MainActivity.this, AdActivity.class);
+                startActivity(intent1);*/
+                handler.sendEmptyMessage(0);
+            }
+        });
 
         startService(new Intent(this, WatchDogService.class));
 
@@ -63,12 +78,21 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Log.e("ricardo","-------------------");
-            closePackage("com.ss.android.article.news");
-            Intent intent = new Intent();
+            Log.e("ricardo", "-------------------" + Utils.isRoot());
+            if (msg.what == 0) {
+                closePackage("com.ss.android.article.news");
+                if (Utils.isRoot()) {
+                    statrtActivity("com.ss.android.article.news/.activity.MainActivity");
+                } else {
+                    startActivity("com.ss.android.article.news", "com.ss.android.article.news.activity.MainActivity");
+                }
+                handler.sendEmptyMessageDelayed(1,6000);
+            } else
+         /*   Intent intent = new Intent();
             intent.setClass(MainActivity.this, AdActivity.class);
-            startActivity(intent);
-            finish();
+            startActivity(intent);*/
+                finish();
+            //  closePackage("com.ss.android.article.news");
         }
     };
 
@@ -85,13 +109,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
-        startActivity(intent);
-        /*if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
-            requestAlertWindowPermission();
-        } else  Monitor.init(this).test();*/
 
-        handler.sendEmptyMessageDelayed(0, 2000);
         Monitor.init(this);
     }
 
@@ -110,4 +128,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void statrtActivity(String s) {
+        try {
+            String cmd = "am start -n  " + s;
+            Process process = Runtime.getRuntime().exec("su");
+            Log.e("ricardo", cmd);
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(cmd + "\n");
+            os.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startActivity(String packageName, String activityName) {
+        try {
+            Context mPluginContext = createPackageContext(packageName,
+                    Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+            Class<?> clazz = mPluginContext.getClassLoader().loadClass(
+                    activityName);
+            Intent intent=new Intent(mPluginContext, clazz);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

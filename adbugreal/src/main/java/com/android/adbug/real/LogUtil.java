@@ -35,15 +35,15 @@ public class LogUtil {
     private void startLog() {
         Log.e("ricardo ","start log");
         try {
-            psProcess = Runtime.getRuntime().exec("ps");
+            /*psProcess = Runtime.getRuntime().exec("ps");
             psError = new LogThread(psProcess.getErrorStream(), "PSErrorStream");
             psError.start();
             psInput = new LogThread(psProcess.getInputStream(), "PSInputStream");
             psInput.start();
             Runtime.getRuntime().exec("logcat -c -b events");
-            Thread.sleep(1000);
+            Thread.sleep(1000);*/
             Log.e("ricardo","logcat -b events -s am_create_activity");
-            process = Runtime.getRuntime().exec("logcat -b events -s am_create_activity");
+            process = Runtime.getRuntime().exec("logcat -b events ");
             errorLog = new LogThread(process.getErrorStream(), "ErrorStream");
             errorLog.start();
             inputLog = new LogThread(process.getInputStream(), "InputStream");
