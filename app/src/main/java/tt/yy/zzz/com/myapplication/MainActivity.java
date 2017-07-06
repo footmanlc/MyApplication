@@ -55,14 +55,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e("ricardo", Utils.isSystemApp(this) + "-----");
+        Log.e("ricardo", Utils.isSystemApp(this) + "-----"+Build.VERSION.SDK_INT);
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 View view1 = LayoutInflater.from(MainActivity.this).inflate(R.layout.ad, null);
                 AdbugView.init(MainActivity.this).show(view1);
-                Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
-                startActivity(intent);
                 /*Intent intent1 = new Intent();
                 intent1.setClass(MainActivity.this, AdActivity.class);
                 startActivity(intent1);*/
@@ -80,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             Log.e("ricardo", "-------------------" + Utils.isRoot());
             if (msg.what == 0) {
+                Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
+                startActivity(intent);
                 closePackage("com.ss.android.article.news");
                 if (Utils.isRoot()) {
                     statrtActivity("com.ss.android.article.news/.activity.MainActivity");
@@ -109,7 +109,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestAlertWindowPermission();
+        }
         Monitor.init(this);
     }
 
