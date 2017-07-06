@@ -3,13 +3,21 @@ package tt.yy.zzz.com.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.android.adbug.real.AdbugView;
 import com.android.adbug.real.Monitor;
@@ -22,6 +30,7 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1;
+
     private void requestAlertWindowPermission() {
         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
         intent.setData(Uri.parse("package:" + getPackageName()));
@@ -35,10 +44,11 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE) {
             if (Settings.canDrawOverlays(this)) {
                 Log.i("", "onActivityResult granted");
-                test();
+                Monitor.init(this).test();
             }
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +58,19 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, WatchDogService.class));
 
     }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.e("ricardo","-------------------");
+            closePackage("com.ss.android.article.news");
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, AdActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
 
     private void start() {
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
@@ -62,10 +85,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Monitor.init(this);//.test();
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+        Intent intent = getPackageManager().getLaunchIntentForPackage("com.ss.android.article.news");
+        startActivity(intent);
+        /*if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
             requestAlertWindowPermission();
-        } else test();
+        } else  Monitor.init(this).test();*/
+
+        handler.sendEmptyMessageDelayed(0, 2000);
+        Monitor.init(this);
     }
 
     private void closePackage(String packageName) {
@@ -82,37 +109,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void statrtActivity(String s) {
-        try {
-            String cmd = "am start -n  " + s;
-            Process process = Runtime.getRuntime().exec("su");
-            Log.e("ricardo",cmd);
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.writeBytes(cmd + "\n");
-            os.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void test() {
-        closePackage("com.ss.android.article.news");
-         statrtActivity("com.ss.android.article.news/.activity.MainActivity");
-        //startActivity("com.ss.android.article.news", "com.ss.android.article.news.activity.MainActivity");
-        AdbugView.init(this).show();
-    }
-
-    private void startActivity(String packageName, String activityName) {
-        try {
-            Context mPluginContext = createPackageContext(packageName,
-                    Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-            Class<?> clazz = mPluginContext.getClassLoader().loadClass(
-                    activityName);
-            startActivity(new Intent(mPluginContext, clazz));
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 }
